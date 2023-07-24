@@ -5,10 +5,17 @@ from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.support.wait   import WebDriverWait
 from crud                              import crud
 
+import sys
+sys.path.insert(1, './model')
+from algoritmo import algoritmoModel
+
+
 class scraping:
-    __obj_crud = None
+    __obj_crud  = None
+    __obj_model = None
     def __init__(self):
-        self.__obj_crud = crud()     
+        self.__obj_crud  = crud()  
+        self.__obj_model = algoritmoModel() 
 
     def switch(self, case, campeonato):
         if case == 'times':
@@ -85,24 +92,38 @@ class scraping:
         click4 = navegador.find_element(By.XPATH, '//*[@id="downshift-11-item-0"]')
         click4.click()
        
-        list = {}
+        lista = {}
         dados = navegador.find_elements(By.CLASS_NAME, 'bwUmPO') 
+       
         contador = 0
-        for dado in dados:                
+        for dado in dados:                        
             contador += 1
             div = contador % 2     
              
             if div == 1:                
-                list[contador]               = {'rodada':'1'}
-                list[contador]['campeonato'] = 'premier league'
-                list[contador]['mandante']   = dado.text
+                lista[contador]               = {'rodada':'1'}
+                lista[contador]['campeonato'] = '1'          
+                time = self.__obj_model.getTimes(dado.text)
+                if time:
+                    lista[contador]['mandante'] = time[0]
+                else:
+                    lista[contador]['mandante'] = '?'
             else:                
-                cont = contador - 1                
-                list[cont]['visitante']   = dado.text
-               
-        
-        self.__obj_crud.newInsert(list)        
-           
+                cont = contador - 1       
+                time = self.__obj_model.getTimes(dado.text)
+                if time:
+                    lista[cont]['visitante'] = time[0]
+                else:
+                    lista[cont]['visitante'] = '?'
+
+        self.__obj_crud.setTable('rodadas')
+        self.__obj_model.setTable('rodadas')       
+        if len(lista) > 0:
+            for list in lista:
+                self.__obj_crud.newInsert(lista[list]) 
+             
+          
+                 
 
 
 scrap = scraping() 

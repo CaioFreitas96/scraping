@@ -30,13 +30,11 @@ class BancoDados:
             self._cursor = con
             return con
     
-    def select(self):
+    def select(self, query):
         cursor = self._cursor.cursor()
-
-        query = f'SELECT * FROM {self._table};'
+        # print(query)
         cursor.execute(query)
-        dados = cursor.fetchall()
-
+        dados = cursor.fetchall()[0]
         cursor.close()
         return dados
 
@@ -49,19 +47,17 @@ class BancoDados:
         self._conexao.commit()
         cursor.close()
 
-    def newInsert(self, arrays):
-        # cursor  = self._cursor.cursor()
-        # query   = f'INSERT INTO {self._table}'
-        for array in arrays:            
-            print(arrays[array])
-
-        
+    def newInsert(self, query):
+        cursor  = self._cursor.cursor()
+        # print(query)
+        cursor.execute(query)
+        self._conexao.commit()
+        cursor.close()             
+              
        
-
-    def finish(self, cursor):
-        cursor.close()
-        cursor.close()
-
+    def setTable(self, table):
+        self._table = table
+   
 
     @property
     def conexao(self):
